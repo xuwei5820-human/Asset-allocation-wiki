@@ -1,0 +1,5 @@
+{
+  "rewrites": [
+    { "source": "/", "destination": "/research/_style-samples/sample-a-orbit.html" }
+  ]
+}
