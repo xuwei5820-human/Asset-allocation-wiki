@@ -1,0 +1,303 @@
+<!doctype html>
+<!-- 正式簡報模板（Orbit 軌道版）。複製到 research/<資料夾>/src/slides.html 後替換內容；插圖路徑以 src/ 為基準（../../../asset/）。內嵌：py -I tools/inline_assets.py research/<資料夾>/src/slides.html research/<資料夾>/slides.html -->
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{簡報標題}}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sofia+Sans:wght@300..800&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+<style>
+:root{
+  --canvas:#F3F0EE; --lifted:#FCFBFA; --white:#FFFFFF; --ink:#141413; --charcoal:#262627;
+  --slate:#696969; --dust:#D1CDC7; --ghost:#E8E2DA; --signal:#CF4500; --arc:#F37338; --link:#3860BE;
+  --shadow-1:rgba(0,0,0,.04) 0 4px 24px 0; --shadow-2:rgba(0,0,0,.08) 0 24px 48px 0;
+  --font:"Sofia Sans","Noto Sans TC",Arial,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--canvas);color:var(--ink);font-family:var(--font);font-weight:450;font-size:18px;line-height:1.5;overflow-x:hidden}
+h1,h2,h3{font-weight:500;letter-spacing:-.02em}
+h1{font-size:clamp(40px,6vw,72px);line-height:1}
+h2{font-size:clamp(28px,3.4vw,44px);line-height:1.15}
+h3{font-size:24px;line-height:1.2}
+.eyebrow{display:inline-flex;align-items:center;gap:10px;font-size:14px;font-weight:700;letter-spacing:.04em;text-transform:uppercase}
+.eyebrow::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--arc)}
+.muted{color:var(--slate)}
+.wrap{max-width:1240px;margin:0 auto;padding:0 clamp(16px,5vw,64px);position:relative}
+
+/* 浮動導覽膠囊 */
+.nav{position:fixed;top:20px;left:50%;transform:translateX(-50%);z-index:20;background:rgba(255,255,255,.88);backdrop-filter:blur(10px);
+  border-radius:999px;box-shadow:var(--shadow-1);display:flex;align-items:center;gap:20px;padding:10px 14px 10px 24px;max-width:calc(100% - 32px)}
+.nav b{font-weight:500;letter-spacing:-.02em;white-space:nowrap}
+.dots{display:flex;gap:8px}
+.dots a{width:10px;height:10px;border-radius:50%;background:var(--dust);transition:all .4s}
+.dots a.on{background:var(--ink);width:28px;border-radius:999px}
+.ring{width:40px;height:40px;flex:none}
+.ring circle{fill:none;stroke-width:3}
+
+/* 軌道層 */
+#orbit{position:absolute;inset:0;pointer-events:none;z-index:0}
+#orbit path{fill:none;stroke:var(--arc);stroke-width:1.5;stroke-linecap:round}
+
+section{position:relative;min-height:100vh;padding:clamp(96px,14vh,140px) 0;z-index:1;overflow-x:clip}
+#main{overflow-x:clip}
+.ghost{position:absolute;white-space:nowrap;font-size:clamp(90px,15vw,220px);font-weight:500;letter-spacing:-.03em;color:var(--ghost);
+  line-height:1;z-index:0;pointer-events:none;will-change:transform}
+.content{position:relative;z-index:2}
+
+/* 圓形肖像 + 衛星按鈕 */
+.portrait{position:relative;width:clamp(220px,26vw,340px);aspect-ratio:1;flex:none;
+  transform:scale(.6) rotate(-10deg);opacity:0;transition:transform 1.1s cubic-bezier(.2,.8,.2,1),opacity .9s}
+.portrait.in{transform:none;opacity:1}
+.portrait img{width:100%;height:100%;object-fit:cover;border-radius:50%;box-shadow:var(--shadow-2);display:block}
+.sat{position:absolute;right:-4%;bottom:6%;width:58px;height:58px;border-radius:50%;background:var(--white);display:grid;place-items:center;
+  font-size:22px;box-shadow:var(--shadow-1);transform:scale(0);transition:transform .6s .6s cubic-bezier(.3,1.6,.5,1)}
+.portrait.in .sat{transform:scale(1)}
+
+.row{display:flex;align-items:center;gap:clamp(32px,6vw,96px)}
+.row.rev{flex-direction:row-reverse}
+.col{flex:1;min-width:0}
+.reveal{opacity:0;transform:translateY(32px);transition:opacity .9s,transform .9s cubic-bezier(.2,.8,.2,1)}
+.reveal.in{opacity:1;transform:none}
+.d1{transition-delay:.12s}.d2{transition-delay:.24s}.d3{transition-delay:.36s}
+
+/* 封面 */
+#cover{display:flex;align-items:center}
+#cover .ghost{top:18%;left:-2%}
+.cta{display:inline-block;background:var(--ink);color:var(--canvas);border-radius:20px;padding:8px 24px;text-decoration:none;font-weight:500;letter-spacing:-.02em;margin-top:32px}
+.chip{display:inline-block;background:var(--white);border-radius:999px;padding:6px 16px;font-size:14px;margin:4px 6px 0 0}
+
+/* 膠囊長條 */
+.bars{display:grid;gap:22px;margin-top:32px}
+.bar{background:var(--lifted);border-radius:999px;height:64px;position:relative;overflow:hidden;box-shadow:var(--shadow-1)}
+.bar i{position:absolute;inset:0 auto 0 0;width:0;background:var(--ink);border-radius:999px;transition:width 1.6s cubic-bezier(.2,.8,.2,1)}
+.bar span{position:absolute;inset:0;display:flex;align-items:center;justify-content:space-between;padding:0 24px;color:var(--canvas);mix-blend-mode:difference;font-weight:500}
+.bar span em{font-style:normal;font-size:28px;letter-spacing:-.02em}
+
+.formula{background:var(--lifted);border-radius:40px;padding:32px 40px;margin-top:28px;box-shadow:var(--shadow-1);font-size:20px;overflow-x:auto}
+.hl{color:var(--signal)}
+.stat{font-size:clamp(56px,8vw,104px);font-weight:500;letter-spacing:-.03em;line-height:1}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:28px;margin-top:36px}
+.stat-card{background:var(--lifted);border-radius:40px;padding:32px;box-shadow:var(--shadow-1)}
+.note{font-size:13px;color:var(--slate);margin-top:24px}
+.take{display:grid;gap:18px;margin-top:32px;counter-reset:t}
+.take li{list-style:none;background:var(--white);border-radius:999px;padding:18px 28px 18px 72px;position:relative;box-shadow:var(--shadow-1)}
+.take li::before{counter-increment:t;content:counter(t);position:absolute;left:14px;top:50%;transform:translateY(-50%);width:44px;height:44px;border-radius:50%;
+  background:var(--ink);color:var(--canvas);display:grid;place-items:center;font-weight:500}
+
+footer{background:var(--ink);color:#fff;padding:96px 0 128px;position:relative;z-index:1}
+footer h2{color:#fff;margin-bottom:40px}
+footer .cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:32px;font-size:14px}
+footer .cols h4{font-size:13px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:#9a9a9a;margin-bottom:12px}
+footer li{list-style:none;margin:6px 0;color:#eee}
+footer hr{border:0;border-top:1px solid rgba(255,255,255,.3);margin:48px 0 20px}
+
+@media (max-width:767px){
+  .row,.row.rev{flex-direction:column;align-items:flex-start}
+  .nav b{display:none}
+  #orbit{display:none}
+  .formula{padding:24px;border-radius:24px;font-size:16px}
+  .take li{border-radius:28px}
+}
+@media (prefers-reduced-motion:reduce){
+  *{transition:none!important;animation:none!important}
+  .portrait,.reveal{opacity:1;transform:none}
+}
+</style>
+</head>
+<body>
+
+<nav class="nav" aria-label="章節">
+  <b>股債怎麼配？</b>
+  <div class="dots" id="dots"></div>
+  <svg class="ring" viewBox="0 0 40 40" aria-hidden="true">
+    <circle cx="20" cy="20" r="16" stroke="#E8E2DA"/>
+    <circle id="ringFg" cx="20" cy="20" r="16" stroke="#F37338" stroke-dasharray="100.5" stroke-dashoffset="100.5" transform="rotate(-90 20 20)"/>
+  </svg>
+</nav>
+
+<main id="main" style="position:relative">
+<svg id="orbit" aria-hidden="true"><path id="orbitPath"/></svg>
+
+<!-- 1 封面 -->
+<section id="cover" data-title="封面">
+  <div class="ghost" data-speed="-0.25">Allocation</div>
+  <div class="wrap content row">
+    <div class="col">
+      <span class="eyebrow reveal">{{副標}}</span>
+      <h1 class="reveal d1" style="margin-top:20px">股債怎麼配？<br>從「90%」迷思<br>到 2022 年的教訓</h1>
+      <p class="muted reveal d2" style="margin-top:24px;max-width:520px">往下滑，橘色軌道會把每個重點串起來。內容全部取自資產配置 wiki（2026-11-15）。</p>
+      <div class="reveal d3"><span class="chip">資產配置</span><span class="chip">相關性</span><span class="chip">台灣視角</span></div>
+      <a class="cta reveal d3" href="#brinson">開始 →</a>
+    </div>
+    <div class="portrait orbit-node"><img src="../../../asset/f3aae922812859ff690f6d25587a29e5.jpg" alt="深色背景上的金融走勢圖"><span class="sat">↓</span></div>
+  </div>
+</section>
+
+<!-- 2 Brinson -->
+<section id="brinson" data-title="90% 迷思">
+  <div class="ghost" data-speed="0.3" style="top:8%;right:-10%">Ninety</div>
+  <div class="wrap content row rev">
+    <div class="col">
+      <span class="eyebrow reveal">迷思破解</span>
+      <h2 class="reveal d1" style="margin-top:16px">「配置決定 90% 的績效」？<br>要看你問的是哪個問題</h2>
+      <p class="reveal d2" style="margin-top:16px">Brinson 等人（1986）分析 91 個美國退休基金的季報酬：配置解釋的是<b>同一個基金報酬隨時間的起伏</b>，不是報酬高低。</p>
+      <div class="bars">
+        <div class="bar" data-w="90"><i></i><span>同一基金，報酬隨時間的起伏<em>≈90%</em></span></div>
+        <div class="bar" data-w="40"><i></i><span>不同基金之間的報酬差距<em>≈40%</em></span></div>
+        <div class="bar" data-w="100"><i></i><span>報酬水準從哪裡來<em>≈100%</em></span></div>
+      </div>
+      <p class="note">Ibbotson &amp; Kaplan（2000）。wiki：concepts/asset-allocation ・ 來源：sources/web-2026-11-15-classic-theory</p>
+    </div>
+    <div class="portrait orbit-node"><img src="../../../asset/3ab05ddfea93f925e57f96f096ce3122.jpg" alt="報紙財經版特寫"><span class="sat">→</span></div>
+  </div>
+</section>
+
+<!-- 3 相關性公式 -->
+<section id="corr" data-title="相關性">
+  <div class="ghost" data-speed="-0.3" style="top:12%;left:-6%">Correlation</div>
+  <div class="wrap content row">
+    <div class="col">
+      <span class="eyebrow reveal">分散的數學</span>
+      <h2 class="reveal d1" style="margin-top:16px">分散有沒有效，<br>關鍵在相關係數 \(\rho\)</h2>
+      <div class="formula reveal d2">\[\sigma_p^2 = w_s^2\sigma_s^2 + w_b^2\sigma_b^2 + \color{#CF4500}{2w_sw_b\,\rho_{sb}\,\sigma_s\sigma_b}\]</div>
+      <p class="reveal d3" style="margin-top:20px">橘色那一項會隨 \(\rho\) 變號：\(\rho\) 越低，組合波動越小。AQR 的研究指出，股債相關性主要由<b>通膨不確定性</b>決定——通膨越難預測，股債越容易同漲同跌。</p>
+      <p class="note">公式為定義。wiki：concepts/correlation ・ 來源：sources/web-2026-11-15-strategies-evidence</p>
+    </div>
+    <div class="portrait orbit-node"><img src="../../../asset/9327b51e51bfef1253b3ef528e034f6b.jpg" alt="多條彩色走勢線與 K 線"><span class="sat">→</span></div>
+  </div>
+</section>
+
+<!-- 4 歷史 -->
+<section id="history" data-title="2022">
+  <div class="ghost" data-speed="0.25" style="top:6%;right:-4%">2022</div>
+  <div class="wrap content">
+    <span class="eyebrow reveal">美國歷史數據</span>
+    <h2 class="reveal d1" style="margin-top:16px;max-width:760px">股債負相關，其實是 2000 年後的「例外」</h2>
+    <div class="stats">
+      <div class="stat-card reveal d1"><div class="stat" data-count="0.18" data-dec="2" data-sign="+">0</div><p class="muted">1926–1999 股債月相關</p></div>
+      <div class="stat-card reveal d2"><div class="stat" data-count="-0.2" data-dec="1">0</div><p class="muted">2000-01 至 2022-11 股債月相關</p></div>
+      <div class="stat-card reveal d3"><div class="stat" data-count="-15.3" data-dec="1" data-suffix="%">0</div><p class="muted">2022 年 Morningstar 60/40 指數（美元、名目）</p></div>
+    </div>
+    <p class="note">wiki：concepts/correlation、strategies/60-40 ・ 來源：sources/web-2026-11-15-strategies-evidence</p>
+  </div>
+</section>
+
+<!-- 5 台灣 -->
+<section id="taiwan" data-title="台灣">
+  <div class="ghost" data-speed="-0.25" style="top:10%;left:-4%">Taiwan</div>
+  <div class="wrap content row rev">
+    <div class="col">
+      <span class="eyebrow reveal">台灣投資人觀點</span>
+      <h2 class="reveal d1" style="margin-top:16px">買 0050，就是在買<br>六成的台積電</h2>
+      <div class="stats" style="grid-template-columns:1fr 1fr">
+        <div class="stat-card reveal d1"><div class="stat" data-count="60.39" data-dec="2" data-suffix="%">0</div><p class="muted">台積電占 0050（2026-05）</p></div>
+        <div class="stat-card reveal d2"><div class="stat" data-count="3.13" data-dec="2" data-suffix="%">0</div><p class="muted">台灣占 MSCI ACWI（2026-08）</p></div>
+      </div>
+      <p class="reveal d3" style="margin-top:20px">2022 年台股下跌時新台幣貶值近 10%，但 2020 年疫情時新台幣反而升值——美元資產的「天然避險」不是固定關係。</p>
+      <p class="note">wiki：taiwan/taiwan-investor-context ・ 來源：sources/web-2026-11-15-taiwan-market</p>
+    </div>
+    <div class="portrait orbit-node"><img src="../../../asset/c05301ba4d64640374fa13717304cadd.jpg" alt="交易所電子看板"><span class="sat">→</span></div>
+  </div>
+</section>
+
+<!-- 6 重點 -->
+<section id="take" data-title="重點">
+  <div class="ghost" data-speed="0.3" style="top:8%;right:-8%">Takeaways</div>
+  <div class="wrap content row">
+    <div class="col">
+      <span class="eyebrow reveal">三個重點</span>
+      <h2 class="reveal d1" style="margin-top:16px">帶走這三件事</h2>
+      <ol class="take">
+        <li class="reveal d1">「90%」講的是報酬起伏；比績效差距，配置只解釋約 40%</li>
+        <li class="reveal d2">股債相關性會變，通膨不確定時債券可能保護不了股票</li>
+        <li class="reveal d3">台灣投資人的集中風險（台積電）與匯率，都要算進配置</li>
+      </ol>
+    </div>
+    <div class="portrait orbit-node"><img src="../../../asset/e11fcae4cec788a9ae2a542612734c26.jpg" alt="模糊文字中紅色的 money"><span class="sat">✓</span></div>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <h2>資料來源與聲明</h2>
+    <div class="cols">
+      <div><h4>wiki 頁面</h4><ul><li>concepts/asset-allocation</li><li>concepts/correlation</li><li>strategies/60-40</li><li>taiwan/taiwan-investor-context</li></ul></div>
+      <div><h4>來源頁</h4><ul><li>web-2026-11-15-classic-theory</li><li>web-2026-11-15-strategies-evidence</li><li>web-2026-11-15-taiwan-market</li></ul></div>
+      <div><h4>插圖</h4><ul><li>使用者 asset/ 資料夾</li></ul></div>
+    </div>
+    <hr>
+    <p style="font-size:13px;color:#bbb">範例 A ・ 本簡報為個人學習紀錄，不構成投資建議；時效性數據以官方最新公告為準。</p>
+  </div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"></script>
+<script>
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+try { renderMathInElement(document.body,{delimiters:[{left:'\\[',right:'\\]',display:true},{left:'\\(',right:'\\)',display:false}],throwOnError:false}); } catch(e){}
+
+/* 進場動畫 */
+const io = new IntersectionObserver(es=>es.forEach(e=>{
+  if(!e.isIntersecting) return;
+  const el=e.target; el.classList.add('in');
+  if(el.classList.contains('bar')) el.querySelector('i').style.width=el.dataset.w+'%';
+  if(el.dataset.count!==undefined) countUp(el);
+  io.unobserve(el);
+}),{threshold:.35});
+document.querySelectorAll('.reveal,.portrait,.bar,[data-count]').forEach(el=>io.observe(el));
+
+function countUp(el){
+  const to=parseFloat(el.dataset.count), dec=+el.dataset.dec||0, suf=el.dataset.suffix||'', sign=el.dataset.sign||'';
+  const fmt=v=>(v>0&&sign?sign:'')+v.toFixed(dec)+suf;
+  if(reduce){el.textContent=fmt(to);return;}
+  const t0=performance.now(), dur=1400;
+  (function step(t){const p=Math.min(1,(t-t0)/dur), e=1-Math.pow(1-p,3); el.textContent=fmt(to*e); if(p<1) requestAnimationFrame(step);})(t0);
+}
+
+/* 章節點 */
+const secs=[...document.querySelectorAll('section')], dots=document.getElementById('dots');
+secs.forEach(s=>{const a=document.createElement('a');a.href='#'+s.id;a.title=s.dataset.title;a.setAttribute('aria-label',s.dataset.title);dots.appendChild(a);});
+secs.forEach(s=>new IntersectionObserver(es=>es.forEach(e=>{ if(e.isIntersecting){ const i=secs.indexOf(e.target); [...dots.children].forEach((d,j)=>d.classList.toggle('on',i===j)); }}),{threshold:.45}).observe(s));
+
+/* 軌道：連接每個圓形肖像，隨捲動描繪 */
+const main=document.getElementById('main'), svg=document.getElementById('orbit'), path=document.getElementById('orbitPath');
+let len=0;
+function buildOrbit(){
+  const r=main.getBoundingClientRect(), W=main.offsetWidth, H=main.offsetHeight;
+  svg.setAttribute('viewBox',`0 0 ${W} ${H}`); svg.setAttribute('width',W); svg.setAttribute('height',H);
+  const pts=[...document.querySelectorAll('.orbit-node')].map(n=>{const b=n.getBoundingClientRect();return [b.left-r.left+b.width/2,b.top-r.top+b.height/2,n.offsetWidth/2];});
+  if(pts.length<2) return;
+  let d=`M ${pts[0][0]} ${pts[0][1]-pts[0][2]-30}`;
+  for(let i=0;i<pts.length;i++){
+    const [x,y,rad]=pts[i], k=i%2?-1:1;
+    // 繞著圓走半圈，再甩向下一個圓（帶一點手繪感的抖動）
+    d+=` A ${rad+30} ${rad+34} 0 0 ${k>0?1:0} ${x} ${y+rad+30}`;
+    if(pts[i+1]){const [nx,ny,nr]=pts[i+1], midY=(y+ny)/2; d+=` C ${x+k*W*.35} ${midY-40}, ${nx-k*W*.3} ${midY+60}, ${nx} ${ny-nr-30}`;}
+  }
+  path.setAttribute('d',d); len=path.getTotalLength();
+  path.style.strokeDasharray=len; onScroll();
+}
+
+/* 捲動：軌道描繪、浮水印視差、進度環 */
+const ghosts=[...document.querySelectorAll('.ghost')], ring=document.getElementById('ringFg');
+function onScroll(){
+  const max=document.documentElement.scrollHeight-innerHeight, p=max>0?scrollY/max:0;
+  ring.style.strokeDashoffset=100.5*(1-p);
+  if(reduce){path.style.strokeDashoffset=0;return;}
+  const r=main.getBoundingClientRect(), local=Math.min(1,Math.max(0,(innerHeight*.6-r.top)/r.height));
+  path.style.strokeDashoffset=len*(1-local);
+  ghosts.forEach(g=>{const s=g.parentElement.getBoundingClientRect(); g.style.transform=`translateX(${(s.top)*parseFloat(g.dataset.speed)}px)`;});
+}
+let tick=false;
+addEventListener('scroll',()=>{if(!tick){tick=true;requestAnimationFrame(()=>{onScroll();tick=false;});}},{passive:true});
+addEventListener('resize',buildOrbit);
+addEventListener('load',buildOrbit);
+document.fonts && document.fonts.ready.then(buildOrbit);
+</script>
+</body>
+</html>

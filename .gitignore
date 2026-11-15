@@ -1,0 +1,11 @@
+# 個人財務資料：上傳到公開 repo 前請保留這行
+wiki/my-portfolio/
+**/.obsidian/workspace*.json
+.DS_Store
+
+# 含真實人物的圖片（AI 合成圖、電影劇照）：只留本機，不上傳
+asset/2d38dde246f06fcec585e06164a612bb.jpg
+asset/c806d58879926807151297a162228544.jpg
+
+# Python 快取
+__pycache__/
